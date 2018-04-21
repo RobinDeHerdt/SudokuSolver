@@ -1,5 +1,6 @@
 from src.quadrant import Quadrant
 from src.line import Line
+import helpers
 
 
 class Board(object):
@@ -18,8 +19,20 @@ class Board(object):
         return quadrants
 
     def solve(self):
-        for quadrant in self.get_quadrants():
+        for quadrant_index, quadrant in enumerate(self.get_quadrants(), start=1):
             missing_numbers = quadrant.get_missing_numbers()
 
-            for cell in quadrant.get_cells():
-                print(cell.get_value())
+            for cell_index, cell in enumerate(quadrant.get_cells(), start=1):
+
+                horizontal_cells = []
+                for i in helpers.get_horizontal_indexes(quadrant_index):
+                    for j in helpers.get_horizontal_indexes(cell_index):
+                        horizontal_cells.append(self.board[i - 1][j - 1])
+
+                vertical_cells = []
+                for i in helpers.get_vertical_indexes(quadrant_index):
+                    for j in helpers.get_vertical_indexes(cell_index):
+                        vertical_cells.append(self.board[i - 1][j - 1])
+
+                horizontal_line = Line(horizontal_cells)
+                vertical_line = Line(vertical_cells)
