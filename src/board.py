@@ -1,5 +1,6 @@
 from src.cell import Cell
 from src.region import Region
+import time
 
 
 class Board(object):
@@ -7,6 +8,7 @@ class Board(object):
     iteration = 0
 
     def __init__(self, board):
+        self.start_time = time.time()
         self.board = board
         self.build()
 
@@ -34,11 +36,12 @@ class Board(object):
         if board_changed:
             return self.solve()
 
-        # When no changes were made to the board,
+        # When no changes were made to the board in this loop,
         # end the program. This however, does necessarily mean
         # that the board has been fully solved.
         # TODO: Implement guessing algorithm with backtracking
-        print("\n FOUND SOLUTION (" + str(self.iteration) + " iterations) \n")
+        execution_time = round(time.time() - self.start_time, 4)
+        print("\n FOUND SOLUTION ({0} iterations, {1} seconds) \n".format(self.iteration, execution_time))
         self.print()
 
     def get_horizontal_line(self, y_pos):
