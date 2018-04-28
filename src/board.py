@@ -85,15 +85,7 @@ class Board(object):
 
     def print(self):
         for line in self.board:
-            line_string = ""
-            for cell in line:
-                if not cell.value:
-                    line_string += ". "
-                    continue
-
-                line_string += str(cell.value) + " "
-
-            print(line_string)
+            print(' '.join(str(cell.value) for cell in line).replace("False", "."))
 
     def build(self):
         tmp_board = []
