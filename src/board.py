@@ -4,17 +4,25 @@ from src.region import Region
 
 class Board(object):
 
+    iteration = 0
+
     def __init__(self, board):
         self.board = board
         self.build()
 
     def solve(self):
+        self.iteration += 1
+
         board_changed = False
         for line_index, line in enumerate(self.board):
             for cell_index, cell in enumerate(line):
+                if cell.value:
+                    continue
+
                 possibilities = self.get_possibilities(cell)
                 if not possibilities:
-                    continue
+                    print("\n IMPOSSIBLE SUDOKU \n")
+                    return
 
                 if len(possibilities) == 1:
                     cell.value = possibilities[0]
@@ -30,7 +38,7 @@ class Board(object):
         # end the program. This however, does necessarily mean
         # that the board has been fully solved.
         # TODO: Implement guessing algorithm with backtracking
-        print('\n FOUND SOLUTION \n')
+        print("\n FOUND SOLUTION (" + str(self.iteration) + " iterations) \n")
         self.print()
 
     def get_horizontal_line(self, y_pos):
