@@ -1,6 +1,3 @@
-from src.cell import Cell
-
-
 class Region(object):
 
     def __init__(self, cells):

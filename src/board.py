@@ -13,59 +13,76 @@ class Board(object):
 
     # TODO: Improve this very primitive board display
     def print(self):
-        position = 0
-        line_string = ""
-        for cell in self.board:
-            if cell.y_pos > position:
-                line_string += "\n"
-                position = cell.y_pos
+        for line in self.board:
+            line_string = ""
+            for cell in line:
+                if not cell.value:
+                    line_string += ". "
+                    continue
 
-            if not cell.value:
-                line_string += "_ "
-                continue
+                line_string += str(cell.value) + " "
 
-            line_string += str(cell.value) + " "
-
-        print(line_string)
+            print(line_string)
 
     def build(self):
         tmp_board = []
         for line_index, line_values in enumerate(self.board, start=1):
+            line = []
             for cell_index, cell_value in enumerate(line_values, start=1):
-                tmp_board.append(Cell(cell_index, line_index, cell_value))
+                line.append(Cell(cell_index, line_index, cell_value))
+
+            tmp_board.append(line)
 
         self.board = tmp_board
 
     def get_horizontal_line(self, y_pos):
         cells = []
-        for cell in self.board:
-            if cell.y_pos == y_pos:
-                cells.append(cell)
+        for line in self.board:
+            for cell in line:
+                if cell.y_pos == y_pos:
+                    cells.append(cell)
 
         return Region(cells)
 
     def get_vertical_line(self, x_pos):
         cells = []
-        for cell in self.board:
-            if cell.x_pos == x_pos:
-                cells.append(cell)
+        for line in self.board:
+            for cell in line:
+                if cell.x_pos == x_pos:
+                    cells.append(cell)
 
         return Region(cells)
 
     def get_quadrant(self, x_pos, y_pos):
-        cells = []
+        x_start = (x_pos // 3) * 3
+        y_start = (y_pos // 3) * 3
 
-        # TODO: Add quadrant functionality.
+        sliced_board = self.board[x_start:x_start+3]
+        for index, line in enumerate(sliced_board):
+            sliced_board[index] = line[y_start:y_start+3]
+
+        cells = []
+        for line in sliced_board:
+            for cell in line:
+                cells.append(cell)
 
         return Region(cells)
 
     def solve(self):
-        for cell in self.board:
-            horizontal_line = self.get_horizontal_line(cell.y_pos)
-            horizontal_line.get_missing_numbers()
+        for line in self.board:
+            for cell in line:
+                possibilities = self.get_possibilities(cell)
 
-            vertical_line = self.get_vertical_line(cell.x_pos)
-            vertical_line.get_missing_numbers()
+    def get_possibilities(self, cell):
+        possibilities = {i for i in range(1, 10)}
 
-            quadrant = self.get_quadrant(cell.x_pos, cell.y_pos)
-            quadrant.get_missing_numbers()
+        horizontal_line = self.get_horizontal_line(cell.y_pos)
+        possibilities -= set(horizontal_line.get_cell_values())
+
+        vertical_line = self.get_vertical_line(cell.x_pos)
+        possibilities -= set(vertical_line.get_cell_values())
+
+        quadrant = self.get_quadrant(cell.x_pos, cell.y_pos)
+        possibilities -= set(quadrant.get_cell_values())
+
+        return list(possibilities)

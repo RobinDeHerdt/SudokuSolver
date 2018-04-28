@@ -13,3 +13,4 @@ board = Board([
 ])
 
 board.print()
+board.solve()
