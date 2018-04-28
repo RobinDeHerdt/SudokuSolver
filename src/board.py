@@ -1,39 +1,37 @@
 from src.cell import Cell
 from src.region import Region
 
-class Board(object):
 
-    quadrants = []
-    horizontal_lines = []
-    vertical_lines = []
+class Board(object):
 
     def __init__(self, board):
         self.board = board
         self.build()
 
-    # TODO: Improve this very primitive board display
-    def print(self):
-        for line in self.board:
-            line_string = ""
-            for cell in line:
-                if not cell.value:
-                    line_string += ". "
+    def solve(self):
+        board_changed = False
+        for line_index, line in enumerate(self.board):
+            for cell_index, cell in enumerate(line):
+                possibilities = self.get_possibilities(cell)
+                if not possibilities:
                     continue
 
-                line_string += str(cell.value) + " "
+                if len(possibilities) == 1:
+                    cell.value = possibilities[0]
+                    self.board[line_index][cell_index] = cell
+                    board_changed = True
 
-            print(line_string)
+        # When the board was altered during this loop,
+        # loop again
+        if board_changed:
+            return self.solve()
 
-    def build(self):
-        tmp_board = []
-        for line_index, line_values in enumerate(self.board, start=1):
-            line = []
-            for cell_index, cell_value in enumerate(line_values, start=1):
-                line.append(Cell(cell_index, line_index, cell_value))
-
-            tmp_board.append(line)
-
-        self.board = tmp_board
+        # When no changes were made to the board,
+        # end the program. This however, does necessarily mean
+        # that the board has been fully solved.
+        # TODO: Implement guessing algorithm with backtracking
+        print('\n FOUND SOLUTION \n')
+        self.print()
 
     def get_horizontal_line(self, y_pos):
         cells = []
@@ -57,9 +55,9 @@ class Board(object):
         x_start = (x_pos // 3) * 3
         y_start = (y_pos // 3) * 3
 
-        sliced_board = self.board[x_start:x_start+3]
+        sliced_board = self.board[y_start:y_start+3]
         for index, line in enumerate(sliced_board):
-            sliced_board[index] = line[y_start:y_start+3]
+            sliced_board[index] = line[x_start:x_start+3]
 
         cells = []
         for line in sliced_board:
@@ -68,12 +66,10 @@ class Board(object):
 
         return Region(cells)
 
-    def solve(self):
-        for line in self.board:
-            for cell in line:
-                possibilities = self.get_possibilities(cell)
-
     def get_possibilities(self, cell):
+        if cell.value:
+            return False
+
         possibilities = {i for i in range(1, 10)}
 
         horizontal_line = self.get_horizontal_line(cell.y_pos)
@@ -86,3 +82,27 @@ class Board(object):
         possibilities -= set(quadrant.get_cell_values())
 
         return list(possibilities)
+
+    def print(self):
+        for line in self.board:
+            line_string = ""
+            for cell in line:
+                if not cell.value:
+                    line_string += ". "
+                    continue
+
+                line_string += str(cell.value) + " "
+
+            print(line_string)
+
+    def build(self):
+        tmp_board = []
+        for line_index, line_values in enumerate(self.board):
+            line = []
+            for cell_index, cell_value in enumerate(line_values):
+                line.append(Cell(cell_index, line_index, cell_value))
+
+            tmp_board.append(line)
+
+        self.board = tmp_board
+        self.print()

@@ -12,5 +12,4 @@ board = Board([
     [False, False, 4, False, False, 5, 3, 1, False],
 ])
 
-board.print()
 board.solve()
