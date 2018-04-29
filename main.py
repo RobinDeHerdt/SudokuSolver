@@ -4,12 +4,16 @@ from tkinter import *
 
 class SudokuSolver(object):
     grid = []
+    status = None
 
     def __init__(self, board=None):
         self.window = Tk()
+
+        self.status = Label(self.window)
+
         self.build(board)
 
-    def build(self, board):
+    def build(self, board=None):
         self.window.title("Sudoku solver")
 
         for line_index, line in enumerate(range(0, 9)):
@@ -33,20 +37,25 @@ class SudokuSolver(object):
 
             self.grid.append(fields)
 
-        submit = Button(self.window, text="Solve", command=self.solve)
-        submit.grid(row=9, columnspan=9, sticky='e')
+        btn_solve = Button(self.window, text="Solve", command=self.solve)
+        btn_solve.grid(row=9, columnspan=9, sticky='e')
+
+        btn_clear = Button(self.window, text="Clear", command=self.clear)
+        btn_clear.grid(row=9, columnspan=7, sticky='e')
 
     def solve(self):
         board = Board(self.get_board_from_grid())
+
+        self.status.grid(row=10, columnspan=9, sticky='w')
         if board.solve():
             self.build(board.board)
-            label = Label(self.window, text="Solved!")
-            label.grid(row=9, columnspan=9, sticky='w')
-            return
+            self.status.configure(text="Solved!")
+        else:
+            self.status.configure(text="Impossible sudoku!")
 
-        label = Label(self.window, text="Impossible sudoku!")
-        label.grid(row=9, columnspan=9, sticky='w')
-
+    def clear(self):
+        self.build()
+        self.status.grid_remove()
 
     def get_board_from_grid(self):
         results = []
