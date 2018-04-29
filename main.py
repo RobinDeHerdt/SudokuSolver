@@ -6,16 +6,16 @@ class SudokuSolver(object):
     grid = []
 
     def __init__(self, board=None):
+        self.window = Tk()
         self.build(board)
 
     def build(self, board):
-        root = Tk()
-        root.title("Sudoku solver")
+        self.window.title("Sudoku solver")
 
         for line_index, line in enumerate(range(0, 9)):
             fields = []
             for cell_index, cell in enumerate(range(0, 9)):
-                e = Entry(root, width=2)
+                e = Entry(self.window, width=2)
 
                 # When importing an existing board, make sure
                 # it is in the correct format, to prevent index errors.
@@ -25,7 +25,7 @@ class SudokuSolver(object):
                             e.insert('0', board[line_index][cell_index])
                     except (IndexError, ValueError):
                         print("Invalid existing board format")
-                        root.destroy()
+                        self.window.destroy()
                         quit()
 
                 e.grid(column=cell_index, row=line_index, padx=2.5, pady=2.5)
@@ -33,12 +33,20 @@ class SudokuSolver(object):
 
             self.grid.append(fields)
 
-        submit = Button(root, text="Solve", command=self.solve)
+        submit = Button(self.window, text="Solve", command=self.solve)
         submit.grid(row=9, columnspan=9, sticky='e')
 
     def solve(self):
         board = Board(self.get_board_from_grid())
-        board.solve()
+        if board.solve():
+            self.build(board.board)
+            label = Label(self.window, text="Solved!")
+            label.grid(row=9, columnspan=9, sticky='w')
+            return
+
+        label = Label(self.window, text="Impossible sudoku!")
+        label.grid(row=9, columnspan=9, sticky='w')
+
 
     def get_board_from_grid(self):
         results = []

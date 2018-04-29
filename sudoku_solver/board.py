@@ -24,7 +24,7 @@ class Board(object):
                 possibilities = self.get_possibilities(cell)
                 if not possibilities:
                     print("\n IMPOSSIBLE SUDOKU \n")
-                    return
+                    return False
 
                 if len(possibilities) == 1:
                     cell.value = possibilities[0]
@@ -43,6 +43,7 @@ class Board(object):
         execution_time = round(time.time() - self.start_time, 4)
         print("\n FOUND SOLUTION ({0} iterations, {1} seconds) \n".format(self.iteration, execution_time))
         self.print()
+        return True
 
     def get_horizontal_line(self, y_pos):
         cells = []
