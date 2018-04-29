@@ -1,57 +1,60 @@
-from src.board import Board
+from sudoku_solver.board import Board
 from tkinter import *
 
 
-def init(existing_board=None):
-    rows = []
+class SudokuSolver(object):
+    grid = []
 
-    def submit():
-        board = Board(get_grid_field_values(rows))
+    def __init__(self, board=None):
+        self.build(board)
+
+    def build(self, board):
+        root = Tk()
+        root.title("Sudoku solver")
+
+        for line_index, line in enumerate(range(0, 9)):
+            fields = []
+            for cell_index, cell in enumerate(range(0, 9)):
+                e = Entry(root, width=2)
+
+                # When importing an existing board, make sure
+                # it is in the correct format, to prevent index errors.
+                if board:
+                    try:
+                        if board[line_index][cell_index]:
+                            e.insert('0', board[line_index][cell_index])
+                    except (IndexError, ValueError):
+                        print("Invalid existing board format")
+                        root.destroy()
+                        quit()
+
+                e.grid(column=cell_index, row=line_index, padx=2.5, pady=2.5)
+                fields.append(e)
+
+            self.grid.append(fields)
+
+        submit = Button(root, text="Solve", command=self.solve)
+        submit.grid(row=9, columnspan=9, sticky='e')
+
+    def solve(self):
+        board = Board(self.get_board_from_grid())
         board.solve()
 
-    root = Tk()
-    root.title("Sudoku solver")
+    def get_board_from_grid(self):
+        results = []
+        for row in self.grid:
+            fields = []
+            for field in row:
+                value = field.get()
+                if value:
+                    fields.append(int(value))
+                    continue
 
-    for line_index, line in enumerate(range(0, 9)):
-        fields = []
-        for cell_index, cell in enumerate(range(0, 9)):
-            e = Entry(root, width=2)
+                fields.append(False)
 
-            # When importing an existing board, make sure
-            # it is in the correct format, to prevent index errors.
-            if existing_board:
-                try:
-                    if existing_board[line_index][cell_index]:
-                        e.insert('0', existing_board[line_index][cell_index])
-                except (IndexError, ValueError):
-                    print("Invalid existing board format")
-                    root.destroy()
-                    quit()
+            results.append(fields)
 
-            e.grid(column=cell_index, row=line_index, padx=2.5, pady=2.5)
-            fields.append(e)
-
-        rows.append(fields)
-
-    submit = Button(root, text="Solve", command=submit)
-    submit.grid(row=9, columnspan=9, sticky='e')
-
-
-def get_grid_field_values(grid_rows):
-    results = []
-    for row in grid_rows:
-        fields = []
-        for field in row:
-            value = field.get()
-            if value:
-                fields.append(int(value))
-                continue
-
-            fields.append(False)
-
-        results.append(fields)
-
-    return results
+        return results
 
 
 example_board = [
@@ -66,5 +69,5 @@ example_board = [
     [False, False, 4, False, False, 5, 3, 1, False],
 ]
 
-init(example_board)
+SudokuSolver(example_board)
 mainloop()

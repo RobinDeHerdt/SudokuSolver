@@ -17,9 +17,6 @@ class Region(object):
 
         return missing_numbers
 
-    def get_cells(self):
-        return self.cells
-
     def get_cell_values(self):
         results = []
         for cell in self.cells:

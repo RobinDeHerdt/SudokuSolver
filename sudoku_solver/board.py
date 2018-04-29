@@ -1,5 +1,5 @@
-from src.cell import Cell
-from src.region import Region
+from sudoku_solver.cell import Cell
+from sudoku_solver.region import Region
 import time
 
 
