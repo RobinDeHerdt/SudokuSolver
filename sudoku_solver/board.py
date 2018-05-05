@@ -14,7 +14,7 @@ class Board(object):
         self.board = board
         self.build()
 
-    def solve(self):
+    def solve(self, enable_guessing=False):
         self.iteration += 1
 
         board_changed = False
@@ -38,35 +38,39 @@ class Board(object):
                     self.board[line_index][cell_index] = cell
                     continue
 
-                # Take a snapshot of the board in its
-                # current state, so we can revert later.
-                snapshot = copy.deepcopy(self.board)
+                if enable_guessing:
+                    # Take a snapshot of the board in its
+                    # current state, so we can revert later.
+                    snapshot = copy.deepcopy(self.board)
 
-                # Try to solve the board for each possible value recursively.
-                for possibility in possibilities:
-                    cell.value = possibility
-                    self.board[line_index][cell_index] = cell
+                    # Try to solve the board for each possible value recursively.
+                    for possibility in possibilities:
+                        cell.value = possibility
+                        self.board[line_index][cell_index] = cell
 
-                    solved = self.solve()
-                    if solved:
-                        return True
-                    else:
-                        # Revert to the previously taken snapshot.
-                        self.board = copy.deepcopy(snapshot)
+                        solved = self.solve()
+                        if solved:
+                            return True
+                        else:
+                            # Revert to the previously taken snapshot.
+                            self.board = copy.deepcopy(snapshot)
 
-                return False
+                    return False
 
         # When the board was altered during this loop,
         # loop again
         if board_changed:
             return self.solve()
 
-        # When no changes were made to the board in this loop,
-        # end the program.
-        execution_time = round(time.time() - self.start_time, 4)
-        print("\n FOUND SOLUTION ({0} iterations, {1} seconds) \n".format(self.iteration, execution_time))
-        self.print()
-        return True
+        if self.is_completed():
+            # When no changes were made to the board in this loop,
+            # end the program.
+            execution_time = round(time.time() - self.start_time, 4)
+            print("\n FOUND SOLUTION ({0} iterations, {1} seconds) \n".format(self.iteration, execution_time))
+            self.print()
+            return True
+
+        return self.solve(True)
 
     def get_horizontal_line(self, y_pos):
         cells = []
@@ -144,3 +148,11 @@ class Board(object):
             lines.append(cells)
 
         return lines
+
+    def is_completed(self):
+        for line in self.get_raw_values():
+            for value in line:
+                if not value:
+                    return False
+
+        return True

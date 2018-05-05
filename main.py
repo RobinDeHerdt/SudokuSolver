@@ -141,5 +141,5 @@ expert_example_board = [
     [False, False, False, False, False, False, False, 8, False]
 ]
 
-SudokuSolver(expert_example_board)
+SudokuSolver(hard_example_board)
 mainloop()
