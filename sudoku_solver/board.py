@@ -121,4 +121,3 @@ class Board(object):
             lines.append(cells)
 
         return lines
-
