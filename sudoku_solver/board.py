@@ -57,19 +57,18 @@ class Board(object):
 
                     return False
 
-        # When the board was altered during this loop,
-        # loop again
+        # When the board was altered during this loop, loop again.
         if board_changed:
             return self.solve()
 
         if self.is_completed():
-            # When no changes were made to the board in this loop,
-            # end the program.
             execution_time = round(time.time() - self.start_time, 4)
             print("\n FOUND SOLUTION ({0} iterations, {1} seconds) \n".format(self.iteration, execution_time))
             self.print()
             return True
 
+        # When the board wasn't altered during this loop,
+        # and its still not completed, enable guessing.
         return self.solve(True)
 
     def get_horizontal_line(self, y_pos):
@@ -150,9 +149,9 @@ class Board(object):
         return lines
 
     def is_completed(self):
-        for line in self.get_raw_values():
-            for value in line:
-                if not value:
+        for line in self.board:
+            for cell in line:
+                if not cell.value:
                     return False
 
         return True
