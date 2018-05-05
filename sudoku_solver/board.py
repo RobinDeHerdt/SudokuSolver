@@ -1,6 +1,8 @@
 from sudoku_solver.cell import Cell
 from sudoku_solver.region import Region
+
 import time
+import copy
 
 
 class Board(object):
@@ -23,13 +25,36 @@ class Board(object):
 
                 possibilities = self.get_possibilities(cell)
                 if not possibilities:
-                    print("\n IMPOSSIBLE SUDOKU \n")
                     return False
 
+                if len(possibilities) == 0:
+                    return False
+
+                # The value of this cell is certain,
+                # since there is only one possibility.
                 if len(possibilities) == 1:
+                    board_changed = True
                     cell.value = possibilities[0]
                     self.board[line_index][cell_index] = cell
-                    board_changed = True
+                    continue
+
+                # Take a snapshot of the board in its
+                # current state, so we can revert later.
+                snapshot = copy.deepcopy(self.board)
+
+                # Try to solve the board for each possible value recursively.
+                for possibility in possibilities:
+                    cell.value = possibility
+                    self.board[line_index][cell_index] = cell
+
+                    solved = self.solve()
+                    if solved:
+                        return True
+                    else:
+                        # Revert to the previously taken snapshot.
+                        self.board = copy.deepcopy(snapshot)
+
+                return False
 
         # When the board was altered during this loop,
         # loop again
@@ -37,9 +62,7 @@ class Board(object):
             return self.solve()
 
         # When no changes were made to the board in this loop,
-        # end the program. This however, does necessarily mean
-        # that the board has been fully solved.
-        # TODO: Implement guessing algorithm with backtracking
+        # end the program.
         execution_time = round(time.time() - self.start_time, 4)
         print("\n FOUND SOLUTION ({0} iterations, {1} seconds) \n".format(self.iteration, execution_time))
         self.print()
