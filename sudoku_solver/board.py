@@ -110,3 +110,15 @@ class Board(object):
 
         self.board = tmp_board
         self.print()
+
+    def get_raw_values(self):
+        lines = []
+        for line in self.board:
+            cells = []
+            for cell in line:
+                cells.append(cell.value)
+
+            lines.append(cells)
+
+        return lines
+

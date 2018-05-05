@@ -3,39 +3,65 @@ from tkinter import *
 
 
 class SudokuSolver(object):
-    grid = []
     status = None
 
-    def __init__(self, board=None):
+    def __init__(self, initial_board=None):
         self.window = Tk()
 
         self.status = Label(self.window)
 
-        self.build(board)
+        self.grid = self.build_entry_fields()
+        self.build(initial_board)
+
+    @staticmethod
+    def get_default_board():
+        default_board = []
+        for i in range(0, 9):
+            fields = []
+            for j in range(0, 9):
+                fields.append(False)
+
+            default_board.append(fields)
+
+        return default_board
+
+    def build_entry_fields(self):
+        grid = []
+        for i in range(0, 9):
+            fields = []
+            for j in range(0, 9):
+                e = Entry(self.window, width=2)
+                e.grid(column=j, row=i, padx=2.5, pady=2.5)
+                fields.append(e)
+
+            grid.append(fields)
+
+        return grid
 
     def build(self, board=None):
         self.window.title("Sudoku solver")
-
-        for line_index, line in enumerate(range(0, 9)):
-            fields = []
-            for cell_index, cell in enumerate(range(0, 9)):
-                e = Entry(self.window, width=2)
+        for line_index, line in enumerate(self.grid):
+            for field_index, field in enumerate(line):
+                if not board:
+                    board = self.get_default_board()
 
                 # When importing an existing board, make sure
                 # it is in the correct format, to prevent index errors.
-                if board:
-                    try:
-                        if board[line_index][cell_index]:
-                            e.insert('0', board[line_index][cell_index])
-                    except (IndexError, ValueError):
-                        print("Invalid existing board format")
-                        self.window.destroy()
-                        quit()
+                try:
+                    # Clear each field
+                    field.delete(0, END)
 
-                e.grid(column=cell_index, row=line_index, padx=2.5, pady=2.5)
-                fields.append(e)
+                    # When there's no value for the field,
+                    # don't insert anything.
+                    if not board[line_index][field_index]:
+                        continue
 
-            self.grid.append(fields)
+                    field.insert(0, board[line_index][field_index])
+
+                except (IndexError, ValueError):
+                    print("Invalid board format")
+                    self.window.destroy()
+                    quit()
 
         btn_solve = Button(self.window, text="Solve", command=self.solve)
         btn_solve.grid(row=9, columnspan=9, sticky='e')
@@ -44,11 +70,13 @@ class SudokuSolver(object):
         btn_clear.grid(row=9, columnspan=7, sticky='e')
 
     def solve(self):
-        board = Board(self.get_board_from_grid())
+        # Construct a board object, based on the raw field values.
+        board = Board(self.get_board_raw_values())
 
         self.status.grid(row=10, columnspan=9, sticky='w')
         if board.solve():
-            self.build(board.board)
+            # Populate the board with the found values.
+            self.build(board.get_raw_values())
             self.status.configure(text="Solved!")
         else:
             self.status.configure(text="Impossible sudoku!")
@@ -57,7 +85,7 @@ class SudokuSolver(object):
         self.build()
         self.status.grid_remove()
 
-    def get_board_from_grid(self):
+    def get_board_raw_values(self):
         results = []
         for row in self.grid:
             fields = []
